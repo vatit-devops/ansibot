@@ -20,14 +20,14 @@ async function action({ fetch }) {
   // });
   // const { data } = await resp.json();
   // if (!data || !data.news) throw new Error('Failed to load the news feed.');
-  const ip = await fetch('http://localhost:3000/myip');
-  const ipAddr = await ip.json();
+  // const ip = await fetch('http://localhost:3000/myip');
+  // const ipAddr = await ip.json();
   return {
     chunks: ['home'],
     title: 'Ansibot',
     component: (
       <Layout>
-        <Form currentIpAddress={ipAddr} />
+        <Form />
       </Layout>
     ),
   };

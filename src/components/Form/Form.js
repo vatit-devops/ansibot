@@ -11,21 +11,28 @@ import React from 'react';
 import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Form.css';
-import { TextField, RaisedButton, List, ListItem } from 'material-ui';
+import { TextField } from 'material-ui';
+import SubmitButton from '../SubmitButton';
 
 class Form extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: 'Username',
-      password: 'Password',
-      filesRemote: '\\\\192.168.10.6\\devops\\dev-machine',
+      host: '',
+      user: '',
+      password: '',
+      filesRemote: '',
       filesRoot: '',
     };
+    this.handleHost = this.handleHost.bind(this);
     this.handleUser = this.handleUser.bind(this);
     this.handlePassword = this.handlePassword.bind(this);
     this.handleFilesRemote = this.handleFilesRemote.bind(this);
     this.handleFilesRoot = this.handleFilesRoot.bind(this);
+  }
+
+  handleHost(event) {
+    this.setState({ host: event.target.value });
   }
 
   handleUser(event) {
@@ -44,24 +51,6 @@ class Form extends React.Component {
     this.setState({ filesRoot: event.target.value });
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    console.log('Submitting...');
-    console.log(this.state);
-    Request.post('http://localhost:3000/submit')
-      .set('Accept', 'application/json')
-      .send(this.state)
-      .query({ format: 'json' })
-      .then(
-        res => {
-          console.log('Submit successful');
-        },
-        error => {
-          console.log(`Error! ${error}`);
-        },
-      );
-  }
-
   render() {
     return (
       <div className={s.root}>
@@ -70,9 +59,9 @@ class Form extends React.Component {
             <div>
               <TextField
                 id="host"
+                onChange={this.handleHost}
                 floatingLabelText="Host IP"
-                value={this.props.currentIpAddress}
-                disabled
+                required
               />
             </div>
             <div>
@@ -102,14 +91,18 @@ class Form extends React.Component {
             </div>
             <div>
               <TextField
-                id="password"
+                id="filesRoot"
                 onChange={this.handleFilesRoot}
                 floatingLabelText="Host Files Root"
                 value={`C:\\Users\\${this.state.user}\\Downloads\\`}
               />
             </div>
             <div>
-              <RaisedButton type="submit" label="Provision" primary />
+              <SubmitButton
+                label="Provision"
+                submission={this.state}
+                type="submit"
+              />
             </div>
           </form>
         </div>

@@ -29,6 +29,7 @@ import models from './data/models';
 import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
+import Docker from 'dockerode';
 
 const app = express();
 
@@ -114,9 +115,28 @@ app.get('/myip', (req, res) => {
 });
 
 app.post('/submit', (req, res) => {
-  console.log(req.body);
-  res.send(JSON.stringify({ status: true }));
+  // console.log(req.body);
+  const docker = new Docker();
+  docker
+    .run(
+      'halosan/ansible-auto:latest',
+      ['/tmp/run.sh', req.body.host, req.body.user, req.body.password],
+      process.stdout,
+    )
+    .then(container => {
+      console.log('Removing container');
+      return container.remove();
+    })
+    .then(data => {
+      console.log('Container Removed');
+      res.send(JSON.stringify({ status: true }));
+    })
+    .catch(err => {
+      console.log(err);
+      res.send(JSON.stringify({ status: false }));
+    });
 });
+
 //
 // Register server-side rendering middleware
 // -----------------------------------------------------------------------------
