@@ -11,7 +11,7 @@ import React from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Header.css';
 import Link from '../Link';
-import Navigation from '../Navigation';
+// import Navigation from '../Navigation';
 import logoUrl from './logo-small.png';
 import logoUrl2x from './logo-small@2x.png';
 
@@ -20,7 +20,7 @@ class Header extends React.Component {
     return (
       <div className={s.root}>
         <div className={s.container}>
-          <Navigation />
+          {/* <Navigation /> */}
           <Link className={s.brand} to="/">
             <img
               src={logoUrl}
@@ -29,11 +29,11 @@ class Header extends React.Component {
               height="38"
               alt="React"
             />
-            <span className={s.brandTxt}>Your Company</span>
+            <span className={s.brandTxt}>VAT IT</span>
           </Link>
           <div className={s.banner}>
-            <h1 className={s.bannerTitle}>React</h1>
-            <p className={s.bannerDesc}>Complex web apps made easy</p>
+            <h1 className={s.bannerTitle}>Ansibot</h1>
+            <p className={s.bannerDesc}>Provision Your Dev Machine</p>
           </div>
         </div>
       </div>

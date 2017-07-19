@@ -10,21 +10,24 @@
 import React from 'react';
 import Home from './Home';
 import Layout from '../../components/Layout';
+import Form from '../../components/Form';
 
 async function action({ fetch }) {
-  const resp = await fetch('/graphql', {
-    body: JSON.stringify({
-      query: '{news{title,link,content}}',
-    }),
-  });
-  const { data } = await resp.json();
-  if (!data || !data.news) throw new Error('Failed to load the news feed.');
+  // const resp = await fetch('/graphql', {
+  //   body: JSON.stringify({
+  //     query: '{news{title,link,content}}',
+  //   }),
+  // });
+  // const { data } = await resp.json();
+  // if (!data || !data.news) throw new Error('Failed to load the news feed.');
+  const ip = await fetch('http://localhost:3000/myip');
+  const ipAddr = await ip.json();
   return {
     chunks: ['home'],
-    title: 'React Starter Kit',
+    title: 'Ansibot',
     component: (
       <Layout>
-        <Home news={data.news} />
+        <Form currentIpAddress={ipAddr} />
       </Layout>
     ),
   };

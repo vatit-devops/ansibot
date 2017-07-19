@@ -107,6 +107,16 @@ app.use(
   })),
 );
 
+app.get('/myip', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(ip));
+});
+
+app.post('/submit', (req, res) => {
+  console.log(req.body);
+  res.send(JSON.stringify({ status: true }));
+});
 //
 // Register server-side rendering middleware
 // -----------------------------------------------------------------------------
