@@ -230,6 +230,10 @@ async function start() {
     browserSync.create().init(
       {
         // https://www.browsersync.io/docs/options
+        // proxy: {
+        //   target: "http://localhost:3000",
+        //   ws: true
+        // },
         server: 'src/server.js',
         middleware: [server],
         open: !process.argv.includes('--silent'),

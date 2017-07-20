@@ -11,6 +11,7 @@ import React from 'react';
 import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { RaisedButton } from 'material-ui';
+import ss from 'socket.io-stream';
 
 class SubmitButton extends React.Component {
   constructor(props) {
@@ -20,6 +21,7 @@ class SubmitButton extends React.Component {
       status: false,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSend = this.handleSend.bind(this);
   }
 
   handleSubmit(event) {
@@ -50,12 +52,26 @@ class SubmitButton extends React.Component {
       );
   }
 
+  handleSend(event) {
+    this.props.socket.emit('submitData', this.props.submission);
+    ss(this.props.socket).on('sendData', stream => {
+      // console.log('Getting logs!');
+      process.stdout.write('Getting logs yo!');
+      stream.pipe(process.stdout);
+
+      stream.on('data', function(chunk) {
+          console.log('chunky chunky');
+          size += chunk.length;
+      });
+    });
+  }
+
   render() {
     return (
       <RaisedButton
         label={this.state.label}
         primary
-        onClick={this.handleSubmit}
+        onClick={this.handleSend}
         disabled={this.state.status}
       />
     );

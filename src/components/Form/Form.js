@@ -11,8 +11,12 @@ import React from 'react';
 import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Form.css';
-import { TextField } from 'material-ui';
+import { TextField,RaisedButton } from 'material-ui';
 import SubmitButton from '../SubmitButton';
+import io from 'socket.io-client';
+import ss from 'socket.io-stream';
+
+const socket = io.connect('http://localhost:3000');
 
 class Form extends React.Component {
   constructor(props) {
@@ -29,6 +33,12 @@ class Form extends React.Component {
     this.handlePassword = this.handlePassword.bind(this);
     this.handleFilesRemote = this.handleFilesRemote.bind(this);
     this.handleFilesRoot = this.handleFilesRoot.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    console.log('Check Socket', socket.connected);
+    socket.on('connect', () => console.log('Socket connected!'));
   }
 
   handleHost(event) {
@@ -49,6 +59,20 @@ class Form extends React.Component {
 
   handleFilesRoot(event) {
     this.setState({ filesRoot: event.target.value });
+  }
+
+  handleSubmit(event){
+    socket.emit('submitData', this.state);
+    ss(socket).on('sendData', stream => {
+      console.log('Getting logs!');
+      process.stdout.write('Gettings logs yo!');
+      stream.pipe(process.stdout);
+
+      stream.on('data', function(chunk) {
+          console.log('chunky chunky');
+          size += chunk.length;
+      });
+    });
   }
 
   render() {
@@ -98,10 +122,9 @@ class Form extends React.Component {
               />
             </div>
             <div>
-              <SubmitButton
+              <RaisedButton
                 label="Provision"
-                submission={this.state}
-                type="submit"
+                onClick={this.handleSubmit}
               />
             </div>
           </form>

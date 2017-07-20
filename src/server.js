@@ -30,9 +30,29 @@ import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
 import Docker from 'dockerode';
+import SS from 'socket.io-stream';
+import http from 'http';
+import Socketio from 'socket.io';
 
 const app = express();
+// const server = require('http').createServer(app);
+const server = new http.Server(app);
+const io = new Socketio(server);
+
 const docker = new Docker();
+// const io = require('socket.io').listen(server);
+// const SocketServer = require('socket.io');
+
+// const io = new SocketServer();
+// app.io = io;
+
+const stream = require('stream');
+
+const echoStream = new stream.Writable();
+echoStream._write = function(chunk, encoding, done) {
+  console.log(chunk.toString());
+  done();
+};
 
 //
 // Tell any CSS tooling (such as Material UI) to use all vendor prefixes if the
@@ -40,6 +60,21 @@ const docker = new Docker();
 // -----------------------------------------------------------------------------
 global.navigator = global.navigator || {};
 global.navigator.userAgent = global.navigator.userAgent || 'all';
+
+const dataStream = SS.createStream();
+
+io.on('connection', socket => {
+  console.log('Client Connected!');
+  socket.on('submitData', data => {
+    console.log('Got submission!');
+    SS(socket).emit('sendData', dataStream);
+    dockerAnsible(data);
+  });
+  // SS(socket).on('sendData', (stream, submission) => {
+  //   console.log('Start Docker Ansible');
+  //   dockerAnsible(submission, stream);
+  // });
+});
 
 //
 // Register Node.js middleware
@@ -112,12 +147,16 @@ app.use(
 app.get('/myip', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(ip))
+  res.send(JSON.stringify(ip));
 });
 
 app.post('/submit', (req, res) => {
   console.log(req.body);
-  dockerAnsible(req, res);
+  if (req.body.host && req.body.user && req.body.password) {
+    dockerAnsible(req, res);
+  } else {
+    res.redirect('/');
+  }
 });
 
 //
@@ -207,9 +246,11 @@ app.use((err, req, res, next) => {
 const promise = models.sync().catch(err => console.error(err.stack));
 if (!module.hot) {
   promise.then(() => {
-    app.listen(config.port, () => {
+    // io.listen(
+    server.listen(config.port, () => {
       console.info(`The server is running at http://localhost:${config.port}/`);
     });
+    // );
   });
 }
 
@@ -221,12 +262,15 @@ if (module.hot) {
   module.hot.accept('./router');
 }
 
-function dockerAnsible(req, res) {
+function dockerAnsible(req) {
+  console.log(req);
   docker
     .run(
       'halosan/ansible-auto:local',
-      ['/tmp/run.sh', req.body.host, req.body.user, req.body.password],
-      process.stdout,
+      ['/tmp/run.sh', req.host, req.user, req.password],
+      // echoStream,
+      dataStream,
+      // process.stdout,
     )
     .then(container => {
       console.log('Removing container');
@@ -234,12 +278,12 @@ function dockerAnsible(req, res) {
     })
     .then(data => {
       console.log('Container Removed');
-      res.send(JSON.stringify({ status: true }));
+      // res.send(JSON.stringify({ status: true }));
       // return { status: true };
     })
     .catch(err => {
       console.log(err);
-      res.send(JSON.stringify({ status: false }));
+      // res.send(JSON.stringify({ status: false }));
       // return { status: true };
     });
 }
