@@ -32,6 +32,7 @@ import config from './config';
 import Docker from 'dockerode';
 
 const app = express();
+const docker = new Docker();
 
 //
 // Tell any CSS tooling (such as Material UI) to use all vendor prefixes if the
@@ -111,30 +112,12 @@ app.use(
 app.get('/myip', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(ip));
+  res.send(JSON.stringify(ip))
 });
 
 app.post('/submit', (req, res) => {
-  // console.log(req.body);
-  const docker = new Docker();
-  docker
-    .run(
-      'halosan/ansible-auto:latest',
-      ['/tmp/run.sh', req.body.host, req.body.user, req.body.password],
-      process.stdout,
-    )
-    .then(container => {
-      console.log('Removing container');
-      return container.remove();
-    })
-    .then(data => {
-      console.log('Container Removed');
-      res.send(JSON.stringify({ status: true }));
-    })
-    .catch(err => {
-      console.log(err);
-      res.send(JSON.stringify({ status: false }));
-    });
+  console.log(req.body);
+  dockerAnsible(req, res);
 });
 
 //
@@ -236,6 +219,29 @@ if (!module.hot) {
 if (module.hot) {
   app.hot = module.hot;
   module.hot.accept('./router');
+}
+
+function dockerAnsible(req, res) {
+  docker
+    .run(
+      'halosan/ansible-auto:local',
+      ['/tmp/run.sh', req.body.host, req.body.user, req.body.password],
+      process.stdout,
+    )
+    .then(container => {
+      console.log('Removing container');
+      return container.remove();
+    })
+    .then(data => {
+      console.log('Container Removed');
+      res.send(JSON.stringify({ status: true }));
+      // return { status: true };
+    })
+    .catch(err => {
+      console.log(err);
+      res.send(JSON.stringify({ status: false }));
+      // return { status: true };
+    });
 }
 
 export default app;
