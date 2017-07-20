@@ -456,6 +456,9 @@ const serverConfig = {
       raw: true,
       entryOnly: false,
     }),
+    // new webpack.optimize.OccurrenceOrderPlugin(),
+    // new webpack.HotModuleReplacementPlugin(),
+    // new webpack.NoErrorsPlugin(),
   ],
 
   // Do not replace node globals with polyfills
