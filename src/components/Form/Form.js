@@ -8,15 +8,15 @@
  */
 
 import React from 'react';
-import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Form.css';
-import { TextField,RaisedButton } from 'material-ui';
-import SubmitButton from '../SubmitButton';
+import { TextField, Button, Grid, Paper } from 'material-ui';
+import Terminal from '../Terminal';
 import io from 'socket.io-client';
-import ss from 'socket.io-stream';
+import Ansi from 'ansi-to-html';
 
 const socket = io.connect('http://localhost:3000');
+const convert = new Ansi({ stream: true });
 
 class Form extends React.Component {
   constructor(props) {
@@ -27,6 +27,9 @@ class Form extends React.Component {
       password: '',
       filesRemote: '',
       filesRoot: '',
+      label: 'Submit',
+      status: false,
+      logs: 'Logging Area....   ',
     };
     this.handleHost = this.handleHost.bind(this);
     this.handleUser = this.handleUser.bind(this);
@@ -37,8 +40,16 @@ class Form extends React.Component {
   }
 
   componentDidMount() {
-    console.log('Check Socket', socket.connected);
     socket.on('connect', () => console.log('Socket connected!'));
+    socket.on('sendLog', data => {
+      console.log(data.toString('ansi'));
+      const tempString = this.state.logs + convert.toHtml(data);
+      this.setState({ logs: tempString });
+    });
+    socket.on('endLog', data => {
+      console.log('Provision complete.');
+      this.setState({ label: 'Complete!' });
+    });
   }
 
   handleHost(event) {
@@ -61,73 +72,84 @@ class Form extends React.Component {
     this.setState({ filesRoot: event.target.value });
   }
 
-  handleSubmit(event){
+  handleSubmit(event) {
+    this.setState({ label: 'Provisioning...', status: true });
     socket.emit('submitData', this.state);
-    ss(socket).on('sendData', stream => {
-      console.log('Getting logs!');
-      process.stdout.write('Gettings logs yo!');
-      stream.pipe(process.stdout);
-
-      stream.on('data', function(chunk) {
-          console.log('chunky chunky');
-          size += chunk.length;
-      });
-    });
   }
 
   render() {
     return (
       <div className={s.root}>
         <div className={s.container}>
-          <form onSubmit={this.handleSubmit}>
-            <div>
-              <TextField
-                id="host"
-                onChange={this.handleHost}
-                floatingLabelText="Host IP"
-                required
-              />
-            </div>
-            <div>
-              <TextField
-                id="user"
-                onChange={this.handleUser}
-                floatingLabelText="Username"
-                required
-              />
-            </div>
-            <div>
-              <TextField
-                id="password"
-                onChange={this.handlePassword}
-                floatingLabelText="Password"
-                type="password"
-                required
-              />
-            </div>
-            <div>
-              <TextField
-                id="filesRemote"
-                onChange={this.handleFilesRemote}
-                floatingLabelText="Host Files Directory"
-                defaultValue="\\192.168.10.6\devops\dev-machine"
-              />
-            </div>
-            <div>
-              <TextField
-                id="filesRoot"
-                onChange={this.handleFilesRoot}
-                floatingLabelText="Host Files Root"
-                value={`C:\\Users\\${this.state.user}\\Downloads\\`}
-              />
-            </div>
-            <div>
-              <RaisedButton
-                label="Provision"
-                onClick={this.handleSubmit}
-              />
-            </div>
-          </form>
+          <Grid container gutter={40}>
+            <Grid item md={4}>
+              <Paper>
+                <form className={s.formSpec} onSubmit={this.handleSubmit}>
+                  <div>
+                    <TextField
+                      id="host"
+                      label="Host"
+                      onChange={this.handleHost}
+                      margin="normal"
+                      fullWidth
+                    />
+                  </div>
+                  <div>
+                    <TextField
+                      id="user"
+                      label="Username"
+                      onChange={this.handleUser}
+                      margin="normal"
+                      fullWidth
+                    />
+                  </div>
+                  <div>
+                    <TextField
+                      id="password"
+                      label="Password"
+                      onChange={this.handlePassword}
+                      type="password"
+                      margin="normal"
+                      fullWidth
+                    />
+                  </div>
+                  <div>
+                    <TextField
+                      id="filesRemote"
+                      onChange={this.handleFilesRemote}
+                      label="Host Files Directory"
+                      defaultValue="\\192.168.10.6\devops\dev-machine"
+                      margin="normal"
+                      fullWidth
+                    />
+                  </div>
+                  <div>
+                    <TextField
+                      id="filesRoot"
+                      onChange={this.handleFilesRoot}
+                      label="Host Files Root"
+                      value={`C:\\Users\\${this.state.user}\\Downloads\\`}
+                      margin="normal"
+                      fullWidth
+                    />
+                  </div>
+                  <div>
+                    <Button
+                      raised
+                      onClick={this.handleSubmit}
+                      disabled={this.state.status}
+                      color="primary"
+                    >
+                      {this.state.label}
+                    </Button>
+                  </div>
+                </form>
+              </Paper>
+            </Grid>
+            <Grid item md>
+              <Terminal logs={this.state.logs} />
+            </Grid>
+          </Grid>
         </div>
       </div>
     );

@@ -11,9 +11,7 @@ import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import expressJwt, { UnauthorizedError as Jwt401Error } from 'express-jwt';
 import expressGraphQL from 'express-graphql';
-import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -30,29 +28,16 @@ import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
 import Docker from 'dockerode';
-import SS from 'socket.io-stream';
 import http from 'http';
 import Socketio from 'socket.io';
 
+const stream = require('stream');
+
 const app = express();
-// const server = require('http').createServer(app);
 const server = new http.Server(app);
 const io = new Socketio(server);
 
 const docker = new Docker();
-// const io = require('socket.io').listen(server);
-// const SocketServer = require('socket.io');
-
-// const io = new SocketServer();
-// app.io = io;
-
-const stream = require('stream');
-
-const echoStream = new stream.Writable();
-echoStream._write = function(chunk, encoding, done) {
-  console.log(chunk.toString());
-  done();
-};
 
 //
 // Tell any CSS tooling (such as Material UI) to use all vendor prefixes if the
@@ -60,21 +45,6 @@ echoStream._write = function(chunk, encoding, done) {
 // -----------------------------------------------------------------------------
 global.navigator = global.navigator || {};
 global.navigator.userAgent = global.navigator.userAgent || 'all';
-
-const dataStream = SS.createStream();
-
-io.on('connection', socket => {
-  console.log('Client Connected!');
-  socket.on('submitData', data => {
-    console.log('Got submission!');
-    SS(socket).emit('sendData', dataStream);
-    dockerAnsible(data);
-  });
-  // SS(socket).on('sendData', (stream, submission) => {
-  //   console.log('Start Docker Ansible');
-  //   dockerAnsible(submission, stream);
-  // });
-});
 
 //
 // Register Node.js middleware
@@ -84,52 +54,11 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-//
-// Authentication
-// -----------------------------------------------------------------------------
-app.use(
-  expressJwt({
-    secret: config.auth.jwt.secret,
-    credentialsRequired: false,
-    getToken: req => req.cookies.id_token,
-  }),
-);
-// Error handler for express-jwt
-app.use((err, req, res, next) => {
-  // eslint-disable-line no-unused-vars
-  if (err instanceof Jwt401Error) {
-    console.error('[express-jwt-error]', req.cookies.id_token);
-    // `clearCookie`, otherwise user can't use web-app until cookie expires
-    res.clearCookie('id_token');
-  }
-  next(err);
-});
-
 app.use(passport.initialize());
 
 if (__DEV__) {
   app.enable('trust proxy');
 }
-app.get(
-  '/login/facebook',
-  passport.authenticate('facebook', {
-    scope: ['email', 'user_location'],
-    session: false,
-  }),
-);
-app.get(
-  '/login/facebook/return',
-  passport.authenticate('facebook', {
-    failureRedirect: '/login',
-    session: false,
-  }),
-  (req, res) => {
-    const expiresIn = 60 * 60 * 24 * 180; // 180 days
-    const token = jwt.sign(req.user, config.auth.jwt.secret, { expiresIn });
-    res.cookie('id_token', token, { maxAge: 1000 * expiresIn, httpOnly: true });
-    res.redirect('/');
-  },
-);
 
 //
 // Register API middleware
@@ -143,12 +72,6 @@ app.use(
     pretty: __DEV__,
   })),
 );
-
-app.get('/myip', (req, res) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(ip));
-});
 
 app.post('/submit', (req, res) => {
   console.log(req.body);
@@ -262,13 +185,12 @@ if (module.hot) {
   module.hot.accept('./router');
 }
 
-function dockerAnsible(req) {
-  console.log(req);
+function dockerAnsible(data, dataStream) {
+  // console.log(req);
   docker
     .run(
       'halosan/ansible-auto:local',
-      ['/tmp/run.sh', req.host, req.user, req.password],
-      // echoStream,
+      ['/tmp/run.sh', data.host, data.user, data.password],
       dataStream,
       // process.stdout,
     )
@@ -287,5 +209,24 @@ function dockerAnsible(req) {
       // return { status: true };
     });
 }
+
+io.on('connection', socket => {
+  console.log('Client Connected!');
+  const dataStream = new stream.Writable();
+  dataStream.setDefaultEncoding('utf8');
+  dataStream._write = function(chunk, encoding, done) {
+    console.log(chunk.toString());
+    socket.emit('sendLog', chunk.toString());
+    done();
+  };
+  socket.on('submitData', data => {
+    console.log('Got submission!');
+    dockerAnsible(data, dataStream);
+  });
+  dataStream.on('finish', data => {
+    console.log('End log');
+    socket.emit('endLog');
+  });
+});
 
 export default app;

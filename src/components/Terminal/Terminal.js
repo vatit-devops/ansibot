@@ -1,7 +1,8 @@
+import React from 'react';
 import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import { Paper } from 'material-ui';
 import s from './Terminal.css';
-import { TextField } from 'material-ui';
 
 class Terminal extends React.Component {
   constructor(props) {
@@ -10,9 +11,13 @@ class Terminal extends React.Component {
 
   render() {
     return (
-      <div className={s.container}>
-          
-      </div>
+      <Paper>
+        <div className={s.container}>
+          <div className={s.terminal}>
+           <div dangerouslySetInnerHTML={{ __html: this.props.logs }} />
+          </div>
+        </div>
+      </Paper>
     );
   }
 }

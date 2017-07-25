@@ -10,7 +10,7 @@
 import React from 'react';
 import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import { RaisedButton } from 'material-ui';
+import { Button } from 'material-ui';
 import ss from 'socket.io-stream';
 
 class SubmitButton extends React.Component {
@@ -68,9 +68,10 @@ class SubmitButton extends React.Component {
 
   render() {
     return (
-      <RaisedButton
+      <Button
+        raised
         label={this.state.label}
-        primary
+        color="primary"
         onClick={this.handleSend}
         disabled={this.state.status}
       />

@@ -1,5 +1,18 @@
 
 .container {
-    height: 400px;
-    overflow-y: auto;
+    /* background-color: #333; */
+    height: 450px;
+    overflow-y: auto; 
+    position: relative;
+    width: 100%; 
+}
+
+.terminal {
+    font-size: 18px;
+    margin: 20px 20px;
+    text-align: left;
+    /* overflow-y: auto;  */
+    position: absolute;
+    bottom: 0px;
+    max-height: 450px;  
 }
