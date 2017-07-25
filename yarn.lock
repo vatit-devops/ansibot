@@ -175,6 +175,12 @@ ansi-styles@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-1.0.0.tgz#cb102df1c56f5123eab8b67cd7b98027a0279178"
 
+ansi-to-html@^0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/ansi-to-html/-/ansi-to-html-0.6.3.tgz#167ebfa5a125dc96bb39ba3ae0660fd5f43d2cb0"
+  dependencies:
+    entities "^1.1.1"
+
 anymatch@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-1.3.0.tgz#a3e52fa39168c825ff57b0248126ce5a8ff95507"
@@ -1954,7 +1960,7 @@ commoner@~0.10.3:
     q "^1.1.2"
     recast "^0.11.17"
 
-component-bind@1.0.0, component-bind@~1.0.0:
+component-bind@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/component-bind/-/component-bind-1.0.0.tgz#00c608ab7dcd93897c0009651b1d3a8e1e73bbd1"
 
@@ -5614,12 +5620,6 @@ memory-fs@^0.4.0, memory-fs@~0.4.1:
     errno "^0.1.3"
     readable-stream "^2.0.1"
 
-memory-streams@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/memory-streams/-/memory-streams-0.1.2.tgz#273ff777ab60fec599b116355255282cca2c50c2"
-  dependencies:
-    readable-stream "~1.0.2"
-
 meow@^3.3.0, meow@^3.7.0, meow@~3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/meow/-/meow-3.7.0.tgz#72cb668b425228290abbfa856892587308a801fb"
@@ -7240,7 +7240,7 @@ read-pkg@^2.0.0:
     normalize-package-data "^2.3.2"
     path-type "^2.0.0"
 
-readable-stream@1.0, "readable-stream@>=1.0.33-1 <1.1.0-0", readable-stream@~1.0.2, readable-stream@~1.0.26-4:
+readable-stream@1.0, "readable-stream@>=1.0.33-1 <1.1.0-0", readable-stream@~1.0.26-4:
   version "1.0.34"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
   dependencies:
@@ -7993,13 +7993,6 @@ socket.io-parser@~3.1.1:
     debug "~2.6.4"
     has-binary2 "~1.0.2"
     isarray "2.0.1"
-
-socket.io-stream@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/socket.io-stream/-/socket.io-stream-0.9.1.tgz#421258316288b83ac693b0d43efd09d6d43aba97"
-  dependencies:
-    component-bind "~1.0.0"
-    debug "~2.2.0"
 
 socket.io@1.6.0:
   version "1.6.0"
