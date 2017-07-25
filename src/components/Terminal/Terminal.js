@@ -1,5 +1,4 @@
 import React from 'react';
-import Request from 'superagent-bluebird-promise';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Paper } from 'material-ui';
 import s from './Terminal.css';
@@ -14,7 +13,7 @@ class Terminal extends React.Component {
       <Paper>
         <div className={s.container}>
           <div className={s.terminal}>
-           <div dangerouslySetInnerHTML={{ __html: this.props.logs }} />
+            <div dangerouslySetInnerHTML={{ __html: this.props.logs }} />
           </div>
         </div>
       </Paper>

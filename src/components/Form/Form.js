@@ -42,7 +42,6 @@ class Form extends React.Component {
   }
 
   componentDidMount() {
-    // const socket = io.connect(this.props.serverIP);
     this.socket.on('connect', () => console.log('Socket connected!'));
     this.socket.on('sendLog', data => {
       console.log(data.toString('ansi'));

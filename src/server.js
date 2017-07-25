@@ -11,7 +11,6 @@ import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-// import expressGraphQL from 'express-graphql';
 import fetch from 'node-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -24,7 +23,6 @@ import createFetch from './createFetch';
 import passport from './passport';
 import router from './router';
 import models from './data/models';
-// import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
 import Docker from 'dockerode';
@@ -81,15 +79,6 @@ app.get('/api/ip', (req, res) => {
   res.send(JSON.stringify(endPoint));
 });
 
-app.post('/submit', (req, res) => {
-  console.log(req.body);
-  if (req.body.host && req.body.user && req.body.password) {
-    dockerAnsible(req, res);
-  } else {
-    res.redirect('/');
-  }
-});
-
 //
 // Register server-side rendering middleware
 // -----------------------------------------------------------------------------
@@ -111,7 +100,6 @@ app.get('*', async (req, res, next) => {
         baseUrl: config.api.serverUrl,
         cookie: req.headers.cookie,
       }),
-      // serverIP: process.env.NODE_ENDPOINT_IP || config.api.serverUrl,
     };
 
     const route = await router.resolve({
@@ -199,10 +187,8 @@ function dockerAnsible(data, dataStream) {
   docker
     .run(
       process.env.NODE_ENV_IMAGE || 'halosan/ansible-auto:local',
-      // 'halosan/ansible-auto:local',
       ['/tmp/run.sh', data.host, data.user, data.password],
       dataStream,
-      // process.stdout,
     )
     .then(container => {
       console.log('Removing container');
@@ -210,13 +196,9 @@ function dockerAnsible(data, dataStream) {
     })
     .then(res => {
       console.log('Container Removed');
-      // res.send(JSON.stringify({ status: true }));
-      // return { status: true };
     })
     .catch(err => {
       console.log(err);
-      // res.send(JSON.stringify({ status: false }));
-      // return { status: true };
     });
 }
 
