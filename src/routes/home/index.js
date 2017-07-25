@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import Home from './Home';
+// import Home from './Home';
 import Layout from '../../components/Layout';
 import Form from '../../components/Form';
 
@@ -22,12 +22,15 @@ async function action({ fetch }) {
   // if (!data || !data.news) throw new Error('Failed to load the news feed.');
   // const ip = await fetch('http://localhost:3000/myip');
   // const ipAddr = await ip.json();
+  // const resp = await fetch('/endpoints/ip');
+  const resp = await fetch('/api/ip', { method: 'GET' });
+  const data = await resp.json();
   return {
     chunks: ['home'],
     title: 'Ansibot',
     component: (
       <Layout>
-        <Form />
+        <Form serverIP={data}/>
       </Layout>
     ),
   };

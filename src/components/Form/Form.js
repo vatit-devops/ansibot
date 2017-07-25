@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Form.css';
 import { TextField, Button, Grid, Paper } from 'material-ui';
@@ -15,10 +16,10 @@ import Terminal from '../Terminal';
 import io from 'socket.io-client';
 import Ansi from 'ansi-to-html';
 
-const socket = io.connect('http://localhost:3000');
 const convert = new Ansi({ stream: true });
 
 class Form extends React.Component {
+  static contextTypes = { fetch: PropTypes.func.isRequired };
   constructor(props) {
     super(props);
     this.state = {
@@ -37,16 +38,18 @@ class Form extends React.Component {
     this.handleFilesRemote = this.handleFilesRemote.bind(this);
     this.handleFilesRoot = this.handleFilesRoot.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.socket = io.connect(props.serverIP);
   }
 
   componentDidMount() {
-    socket.on('connect', () => console.log('Socket connected!'));
-    socket.on('sendLog', data => {
+    // const socket = io.connect(this.props.serverIP);
+    this.socket.on('connect', () => console.log('Socket connected!'));
+    this.socket.on('sendLog', data => {
       console.log(data.toString('ansi'));
       const tempString = this.state.logs + convert.toHtml(data);
       this.setState({ logs: tempString });
     });
-    socket.on('endLog', data => {
+    this.socket.on('endLog', data => {
       console.log('Provision complete.');
       this.setState({ label: 'Complete!' });
     });
@@ -74,7 +77,7 @@ class Form extends React.Component {
 
   handleSubmit(event) {
     this.setState({ label: 'Provisioning...', status: true });
-    socket.emit('submitData', this.state);
+    this.socket.emit('submitData', this.state);
   }
 
   render() {

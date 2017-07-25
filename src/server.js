@@ -11,7 +11,7 @@ import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import expressGraphQL from 'express-graphql';
+// import expressGraphQL from 'express-graphql';
 import fetch from 'node-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -24,12 +24,14 @@ import createFetch from './createFetch';
 import passport from './passport';
 import router from './router';
 import models from './data/models';
-import schema from './data/schema';
+// import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
 import Docker from 'dockerode';
 import http from 'http';
 import Socketio from 'socket.io';
+
+const Os = require('os');
 
 const stream = require('stream');
 
@@ -63,15 +65,21 @@ if (__DEV__) {
 //
 // Register API middleware
 // -----------------------------------------------------------------------------
-app.use(
-  '/graphql',
-  expressGraphQL(req => ({
-    schema,
-    graphiql: __DEV__,
-    rootValue: { request: req },
-    pretty: __DEV__,
-  })),
-);
+// app.use(
+//   '/graphql',
+//   expressGraphQL(req => ({
+//     schema,
+//     graphiql: __DEV__,
+//     rootValue: { request: req },
+//     pretty: __DEV__,
+//   })),
+// );
+
+app.get('/api/ip', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  const endPoint = process.env.NODE_ENDPOINT_IP || 'http://localhost:3000';
+  res.send(JSON.stringify(endPoint));
+});
 
 app.post('/submit', (req, res) => {
   console.log(req.body);
@@ -103,6 +111,7 @@ app.get('*', async (req, res, next) => {
         baseUrl: config.api.serverUrl,
         cookie: req.headers.cookie,
       }),
+      // serverIP: process.env.NODE_ENDPOINT_IP || config.api.serverUrl,
     };
 
     const route = await router.resolve({
@@ -186,10 +195,11 @@ if (module.hot) {
 }
 
 function dockerAnsible(data, dataStream) {
-  // console.log(req);
+  // console.log(data);
   docker
     .run(
-      'halosan/ansible-auto:local',
+      process.env.NODE_ENV_IMAGE || 'halosan/ansible-auto:local',
+      // 'halosan/ansible-auto:local',
       ['/tmp/run.sh', data.host, data.user, data.password],
       dataStream,
       // process.stdout,
@@ -198,7 +208,7 @@ function dockerAnsible(data, dataStream) {
       console.log('Removing container');
       return container.remove();
     })
-    .then(data => {
+    .then(res => {
       console.log('Container Removed');
       // res.send(JSON.stringify({ status: true }));
       // return { status: true };
