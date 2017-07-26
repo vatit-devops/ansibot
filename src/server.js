@@ -29,8 +29,6 @@ import Docker from 'dockerode';
 import http from 'http';
 import Socketio from 'socket.io';
 
-const Os = require('os');
-
 const stream = require('stream');
 
 const app = express();

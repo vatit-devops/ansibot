@@ -1,0 +1,7 @@
+---
+
+- name: Installing windows packages
+  hosts: windows
+  # remote_user: "{{ ansible_user }}"
+  roles:
+    - common

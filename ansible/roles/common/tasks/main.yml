@@ -1,0 +1,5 @@
+---
+
+- name: Install Java 8 JDK via Chocolatey 
+win_chocolatey:
+  name: jdk8
