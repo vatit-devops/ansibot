@@ -21,8 +21,10 @@ This example project assumes that you have the following setup:
 
 ## Directory Structure
 
-_ansible_: This directory has the example Docker image for Ansible usage.
-_src_: Source code for front-end.
+- _ansible_: This directory has the example Docker image for Ansible usage.
+- _src_: Source code for front-end.
+- _docs_: Docs for react starter kit.
+- _tools_: Webpack configs.
 
 ## Usage
 
