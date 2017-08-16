@@ -4,7 +4,7 @@ Author: Harry Lee <harryl@vatit.com>
 
 ## Introduction
 
-Front end for provisioning machines using **Ansible** through a web app. The purpose of this project is to allow end users to provision their own machines/other hosts through a frontend without worring about changing the `hosts` file. This abstracts the end users from the underlying implementations of `playbooks`. This example front-end allows users to enter their own credentials and will stream console logs from **Ansible** to the web front-end.
+Front end for provisioning machines using **Ansible** through a web app. The purpose of this project is to allow end users to provision their own machines/other hosts through a frontend without worrying about changing the `hosts` file. This abstracts the end users from the underlying implementations of `playbooks`. This example front-end allows users to enter their own credentials and will stream console logs from **Ansible** to the web front-end.
 
 This project is based on [react-starter-kit](https://github.com/kriasoft/react-starter-kit) and uses **Docker** to deploy **Ansible**. Websockets (using [Socket.io](https://socket.io/)) are used to stream logs to the web front-end. [Material-UI](https://material-ui-1dab0.firebaseapp.com/) is used for the front-end.
 
