@@ -1,4 +1,13 @@
+FROM node:8.9.4-alpine as builder
+WORKDIR /opt/app
+COPY ./package.json .
+COPY ./yarn.lock .
+RUN yarn install --no-progress
+COPY ./ .
+RUN yarn run build --release
+
 FROM node:8.9.4-stretch
+MAINTAINER Harry Lee
 
 USER root
 
@@ -12,20 +21,16 @@ RUN apt-get update && apt-get -y install \
 
 RUN curl -sSL https://get.docker.com/ | sh
 
-RUN usermod -a -G docker node
-
-USER node
+RUN usermod -aG docker node
 
 # Set a working directory
-WORKDIR /usr/src/app
-
-COPY ./package.json .
-COPY ./yarn.lock .
-
-# Install Node.js dependencies
-RUN yarn install --production --no-progress
+WORKDIR /home/node
 
 # Copy application files
-COPY ./build .
+COPY --from=builder /opt/app/build/ ./
+RUN chown -R node:node ./
+
+USER node
+RUN yarn install
 
 CMD [ "node", "server.js" ]
