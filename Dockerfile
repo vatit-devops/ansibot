@@ -14,11 +14,13 @@ RUN curl -sSL https://get.docker.com/ | sh
 
 RUN usermod -a -G docker node
 
+USER node
+
 # Set a working directory
 WORKDIR /usr/src/app
 
-COPY ./build/package.json .
-COPY ./build/yarn.lock .
+COPY ./package.json .
+COPY ./yarn.lock .
 
 # Install Node.js dependencies
 RUN yarn install --production --no-progress
