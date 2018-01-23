@@ -8,6 +8,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-     - NODE_ENDPOINT=http://localhost:3000
+     - NODE_ENDPOINT_IP=http://localhost:3000
      - NODE_ENV_IMAGE=halosan/ansible-auto:local
     container_name: frontend
