@@ -1,0 +1,9 @@
+version: '3'
+services:
+  front-end:
+    image: halosan/dev-machine-frontend:latest
+    ports:
+     - "3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: frontend
